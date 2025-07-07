@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat App</title>
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+</head>
+<body>
+  <input id="user" placeholder="Enter your name" />
+  <input id="msg" placeholder="Type a message" />
+  <button onclick="sendMsg()">Send</button>
+  <ul id="chatBox"></ul>
+
+  <script>
+    const socket = io('http://localhost:3000');
+    socket.on('chat message', (msg) => {
+      const li = document.createElement('li');
+      li.textContent = `${msg.username}: ${msg.text}`;
+      document.getElementById('chatBox').appendChild(li);
+    });
+
+    async function sendMsg() {
+      const user = document.getElementById('user').value;
+      const msg = document.getElementById('msg').value;
+      socket.emit('chat message', { username: user, text: msg });
+    }
+
+    // Load old messages
+    fetch('http://localhost:3000/messages')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(msg => {
+          const li = document.createElement('li');
+          li.textContent = `${msg.username}: ${msg.text}`;
+          document.getElementById('chatBox').appendChild(li);
+        });
+      });
+  </script>
+</body>
+</html>
